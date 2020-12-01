@@ -1,19 +1,34 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tasks
 {
-    public class TaskManager
+    public class TaskManager : State
     {
-        private List<Task> Tasks = new List<Task>();
+        private State _state;
 
-        public void AddNewTask()
+        // public List<Task> _tasks = new List<Task>();
+        public List<Task> _tasks = new List<Task>()
+        {
+            new Task("Купить хлеб", DateTime.Now, "низкий"),
+            new Task("Купить молоко", DateTime.Now, "низкий"),
+            new Task("Погулять с собакой", DateTime.Now, "низкий"),
+            new Task("Заказать ресторан", DateTime.Now, "высокий")
+        };
+
+        public TaskManager()
+        {
+            _state = new StateNew(this);
+        }
+
+        private void AddNewTask()
         {
             var description = GetDescriptionTask();
             var dateTime = GetDate();
             var priority = GetPriority();
             Task task = new Task(description, dateTime, priority);
-            Tasks.Add(task);
+            _tasks.Add(task);
         }
 
         private string GetDescriptionTask()
@@ -105,12 +120,111 @@ namespace Tasks
             return priority;
         }
 
-        public void ShowTasks()
+        public void ShowAllTasks()
         {
             Console.WriteLine("Задачи:");
-            foreach (var task in Tasks)
+            foreach (var task in _tasks)
             {
                 Console.WriteLine(task.Description);
+            }
+
+            Console.WriteLine("____________________");
+        }
+
+        public int GetNumber()
+        {
+            while (true)
+            {
+                try
+                {
+                    var choice = int.Parse(Console.ReadLine());
+                    return choice;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Нужно ввести число");
+                }
+            }
+        }
+
+        private void ShowATask()
+        {
+            int taskIndex;
+            Console.WriteLine("Выберите задачу");
+            for (var i = 0; i < _tasks.Count; i++)
+            {
+                Console.WriteLine("{0}: {1}", i + 1, _tasks[i].Description);
+            }
+
+            taskIndex = GetNumber();
+            if (Enumerable.Range(0, _tasks.Count + 1).Contains(taskIndex))
+            {
+                var task = _tasks[taskIndex - 1];
+                Console.WriteLine("Задача:\t\t\t {0}", task.Description);
+                Console.WriteLine("Приоритет:\t\t {0}", task.Priority);
+                Console.WriteLine("Статус:\t\t\t {0}", task._status);
+                Console.WriteLine("Должна быть выполнена к: {0}", task.CompletionDate);
+            }
+            else
+            {
+                Console.WriteLine("Такой задачи нет");
+            }
+
+            Console.WriteLine("-------------------------");
+        }
+
+        public void ChangeState(State other_state) => _state = other_state;
+
+        public void InProgress() => _state.InProgress();
+
+        public void Done() => _state.Done();
+
+        public void Remove()
+        {
+            _state.Remove();
+            ShowAllTasks();
+            Console.WriteLine("-------------------");
+        }
+
+        private static void ShowMenuVariants()
+        {
+            Console.WriteLine("Выберите вариант:");
+            List<string> variants = new List<string>()
+            {
+                "Создать новую задчу",
+                "Отобразить все задачи",
+                "Отобразить задачу",
+                "Удалить задачу",
+                // "Изменить статус задачи"
+            };
+
+            for (var i = 0; i < variants.Count; i++)
+            {
+                Console.WriteLine("{0}: {1}", i + 1, variants[i]);
+            }
+        }
+
+        public void Menu()
+        {
+            while (true)
+            {
+                ShowMenuVariants();
+                var choice = GetNumber();
+                switch (choice)
+                {
+                    case 1:
+                        AddNewTask();
+                        break;
+                    case 2:
+                        ShowAllTasks();
+                        break;
+                    case 3:
+                        ShowATask();
+                        break;
+                    case 4:
+                        Remove();
+                        break;
+                }
             }
         }
     }
