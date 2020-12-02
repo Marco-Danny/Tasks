@@ -17,15 +17,11 @@ namespace Tasks
             new Task("Заказать ресторан", DateTime.Now, "высокий")
         };
 
-        private void AddNewTask()
+        private void MoveOn()
         {
-            var description = GetDescriptionTask();
-            var dateTime = GetDate();
-            var priority = GetPriority();
-            Task task = new Task(description, dateTime, priority);
-            _tasks.Add(task);
-            Console.WriteLine("Задача была добавлена.");
-            ShowAllTasks();
+            Console.WriteLine("Для продолжения нажмите клавишу.");
+            Console.WriteLine("____________________");
+            Console.ReadKey();
         }
 
         private string GetDescriptionTask()
@@ -117,6 +113,18 @@ namespace Tasks
             return priority;
         }
 
+        private void AddNewTask()
+        {
+            var description = GetDescriptionTask();
+            var dateTime = GetDate();
+            var priority = GetPriority();
+            Task task = new Task(description, dateTime, priority);
+            _tasks.Add(task);
+            Console.WriteLine("Задача была добавлена.");
+            ShowAllTasks();
+            MoveOn();
+        }
+
         private void ShowAllTasks()
         {
             Console.WriteLine("Задачи:");
@@ -125,9 +133,8 @@ namespace Tasks
                 Console.WriteLine("{0} : {1}", i + 1, _tasks[i].Description);
             }
 
-            Console.WriteLine("Для продолжения нажмите клавишу: ");
-            Console.ReadKey();
-            Console.WriteLine("____________________");
+            Console.WriteLine();
+            Console.WriteLine("------------------------");
         }
 
         private int GetNumber()
@@ -169,7 +176,7 @@ namespace Tasks
                 Console.WriteLine("Такой задачи нет");
             }
 
-            Console.WriteLine("-------------------------");
+            MoveOn();
         }
 
         private void RemoveTask()
@@ -186,6 +193,7 @@ namespace Tasks
                     Console.WriteLine("-------------------");
                     Console.WriteLine("Задача была удалена: ");
                     ShowAllTasks();
+                    MoveOn();
                     break;
                 }
                 else
@@ -201,7 +209,7 @@ namespace Tasks
 
         private static void ShowMenuVariants()
         {
-            Console.WriteLine("Выберите вариант:");
+            Console.WriteLine("Выберите действие: ");
             List<string> variants = new List<string>()
             {
                 "Создать новую задчу",
