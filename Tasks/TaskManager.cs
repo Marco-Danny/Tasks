@@ -4,23 +4,18 @@ using System.Linq;
 
 namespace Tasks
 {
-    public class TaskManager : State
+    public class TaskManager
     {
         private State _state;
 
         // public List<Task> _tasks = new List<Task>();
-        public List<Task> _tasks = new List<Task>()
+        private readonly List<Task> _tasks = new List<Task>()
         {
             new Task("Купить хлеб", DateTime.Now, "низкий"),
             new Task("Купить молоко", DateTime.Now, "низкий"),
             new Task("Погулять с собакой", DateTime.Now, "низкий"),
             new Task("Заказать ресторан", DateTime.Now, "высокий")
         };
-
-        public TaskManager()
-        {
-            _state = new StateNew(this);
-        }
 
         private void AddNewTask()
         {
@@ -29,6 +24,8 @@ namespace Tasks
             var priority = GetPriority();
             Task task = new Task(description, dateTime, priority);
             _tasks.Add(task);
+            Console.WriteLine("Задача была добавлена.");
+            ShowAllTasks();
         }
 
         private string GetDescriptionTask()
@@ -120,18 +117,20 @@ namespace Tasks
             return priority;
         }
 
-        public void ShowAllTasks()
+        private void ShowAllTasks()
         {
             Console.WriteLine("Задачи:");
-            foreach (var task in _tasks)
+            for (var i = 0; i < _tasks.Count; i++)
             {
-                Console.WriteLine(task.Description);
+                Console.WriteLine("{0} : {1}", i + 1, _tasks[i].Description);
             }
 
+            Console.WriteLine("Для продолжения нажмите клавишу: ");
+            Console.ReadKey();
             Console.WriteLine("____________________");
         }
 
-        public int GetNumber()
+        private int GetNumber()
         {
             while (true)
             {
@@ -173,17 +172,31 @@ namespace Tasks
             Console.WriteLine("-------------------------");
         }
 
-        public void ChangeState(State other_state) => _state = other_state;
-
-        public void InProgress() => _state.InProgress();
-
-        public void Done() => _state.Done();
-
-        public void Remove()
+        private void RemoveTask()
         {
-            _state.Remove();
-            ShowAllTasks();
-            Console.WriteLine("-------------------");
+            while (true)
+            {
+                Console.WriteLine("Выберите задачу:");
+                ShowAllTasks();
+                var task_index = GetNumber();
+                if (task_index > 0 && task_index <= _tasks.Count)
+                {
+                    Task taskForRemove = _tasks[task_index - 1];
+                    taskForRemove._status.Remove(_tasks, taskForRemove);
+                    Console.WriteLine("-------------------");
+                    Console.WriteLine("Задача была удалена: ");
+                    ShowAllTasks();
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Введён неверный номер задачи!");
+                }
+            }
+        }
+
+        private void ChangeTaskStatus()
+        {
         }
 
         private static void ShowMenuVariants()
@@ -222,7 +235,7 @@ namespace Tasks
                         ShowATask();
                         break;
                     case 4:
-                        Remove();
+                        RemoveTask();
                         break;
                 }
             }
