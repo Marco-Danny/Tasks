@@ -24,6 +24,6 @@ namespace Tasks
 
         public void Done() => _status.Done();
 
-        public void Remove(List<Task> tasks, Task task) => _status.Remove(tasks, this);
+        public void Remove(List<Task> tasks) => _status.Remove(tasks);
     }
 }

@@ -6,16 +6,15 @@ namespace Tasks
 {
     public class StateNew : State
     {
-        public readonly string Name = "новая";
-        private Task _task;
-
-        private TaskManager _manager;
+        private readonly string Name = "новая";
+        private readonly Task _task;
 
         public StateNew(Task task) => _task = task;
 
         public void InProgress()
         {
-            // _manager.ChangeState(new StateInProgress(_manager));
+            _task.ChangeState(new StateInProgress(_task));
+            Console.WriteLine("Теперь статус задачи {0}:", _task._status);
         }
 
         public void Done()
@@ -23,9 +22,9 @@ namespace Tasks
             Console.WriteLine("Статус задачи нельзя изменить на \"Выполнено\"");
         }
 
-        public void Remove(List<Task> tasks, Task task)
+        public void Remove(List<Task> tasks)
         {
-            tasks.Remove(task);
+            tasks.Remove(_task);
         }
 
         public override string ToString()

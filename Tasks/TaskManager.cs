@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,19 +9,22 @@ namespace Tasks
     {
         private State _state;
 
-        // public List<Task> _tasks = new List<Task>();
-        private readonly List<Task> _tasks = new List<Task>()
-        {
-            new Task("Купить хлеб", DateTime.Now, "низкий"),
-            new Task("Купить молоко", DateTime.Now, "низкий"),
-            new Task("Погулять с собакой", DateTime.Now, "низкий"),
-            new Task("Заказать ресторан", DateTime.Now, "высокий")
-        };
+        private List<Task> _tasks = new List<Task>();
+        private bool IsHaveTask => _tasks.Count > 0;
+        private bool IsCorrectChoice<T>(int input, ICollection data) => input > 0 && input <= data.Count;
+
+        // private readonly List<Task> _tasks = new List<Task>()
+        // {
+        //     new Task("Купить хлеб", DateTime.Now, "низкий"),
+        //     new Task("Купить молоко", DateTime.Now, "низкий"),
+        //     new Task("Погулять с собакой", DateTime.Now, "низкий"),
+        //     new Task("Заказать ресторан", DateTime.Now, "высокий")
+        // };
 
         private void MoveOn()
         {
             Console.WriteLine("Для продолжения нажмите клавишу.");
-            Console.WriteLine("____________________");
+            Console.WriteLine("________________________________");
             Console.ReadKey();
         }
 
@@ -121,11 +125,11 @@ namespace Tasks
             Task task = new Task(description, dateTime, priority);
             _tasks.Add(task);
             Console.WriteLine("Задача была добавлена.");
-            ShowAllTasks();
+            ShowTasks();
             MoveOn();
         }
 
-        private void ShowAllTasks()
+        private void ShowTasks()
         {
             Console.WriteLine("Задачи:");
             for (var i = 0; i < _tasks.Count; i++)
@@ -133,8 +137,21 @@ namespace Tasks
                 Console.WriteLine("{0} : {1}", i + 1, _tasks[i].Description);
             }
 
-            Console.WriteLine();
-            Console.WriteLine("------------------------");
+            Console.WriteLine("-------------------------");
+        }
+
+        private void ShowAllTasks()
+        {
+            if (IsHaveTask)
+            {
+                ShowTasks();
+            }
+            else
+            {
+                Console.WriteLine("Задач нет!");
+            }
+
+            MoveOn();
         }
 
         private int GetNumber()
@@ -153,48 +170,41 @@ namespace Tasks
             }
         }
 
-        private void ShowATask()
+        private void ShowTask()
         {
-            int taskIndex;
-            Console.WriteLine("Выберите задачу");
-            for (var i = 0; i < _tasks.Count; i++)
+            if (IsHaveTask)
             {
-                Console.WriteLine("{0}: {1}", i + 1, _tasks[i].Description);
+                Console.WriteLine("Выберите задачу");
+                int taskIndex = GetNumber();
+                if (IsCorrectChoice<Task>(taskIndex, _tasks))
+                {
+                    Task task = GetTask();
+                    Console.WriteLine("Задача:\t\t\t {0}", task.Description);
+                    Console.WriteLine("Приоритет:\t\t {0}", task.Priority);
+                    Console.WriteLine("Статус:\t\t\t {0}", task._status);
+                    Console.WriteLine("Должна быть выполнена к: {0}", task.CompletionDate);
+                }
+                else
+                {
+                    Console.WriteLine("Такой задачи нет");
+                }
             }
 
-            taskIndex = GetNumber();
-            if (Enumerable.Range(0, _tasks.Count + 1).Contains(taskIndex))
-            {
-                var task = _tasks[taskIndex - 1];
-                Console.WriteLine("Задача:\t\t\t {0}", task.Description);
-                Console.WriteLine("Приоритет:\t\t {0}", task.Priority);
-                Console.WriteLine("Статус:\t\t\t {0}", task._status);
-                Console.WriteLine("Должна быть выполнена к: {0}", task.CompletionDate);
-            }
-            else
-            {
-                Console.WriteLine("Такой задачи нет");
-            }
-
+            Console.WriteLine("Задач нет!");
             MoveOn();
         }
 
-        private void RemoveTask()
+        private Task GetTask()
         {
+            if (!IsHaveTask) return null;
             while (true)
             {
                 Console.WriteLine("Выберите задачу:");
-                ShowAllTasks();
+                ShowTasks();
                 var task_index = GetNumber();
-                if (task_index > 0 && task_index <= _tasks.Count)
+                if (IsCorrectChoice<Task>(task_index, _tasks))
                 {
-                    Task taskForRemove = _tasks[task_index - 1];
-                    taskForRemove._status.Remove(_tasks, taskForRemove);
-                    Console.WriteLine("-------------------");
-                    Console.WriteLine("Задача была удалена: ");
-                    ShowAllTasks();
-                    MoveOn();
-                    break;
+                    return _tasks[task_index - 1];
                 }
                 else
                 {
@@ -203,25 +213,105 @@ namespace Tasks
             }
         }
 
-        private void ChangeTaskStatus()
+        private void RemoveTask()
         {
+            if (IsHaveTask)
+            {
+                var taskForeRemove = GetTask();
+                taskForeRemove._status.Remove(_tasks);
+                Console.WriteLine("-------------------");
+                Console.WriteLine("Задача была удалена: ");
+                ShowTasks();
+                MoveOn();
+            }
+            else
+            {
+                Console.WriteLine("Задач нет!");
+                MoveOn();
+            }
         }
 
-        private static void ShowMenuVariants()
+        private State GetStatusForChange(Task task)
         {
-            Console.WriteLine("Выберите действие: ");
+            var statusesForChange = new List<State>()
+            {
+                new StateInProgress(task),
+                new StateDone()
+            };
+
+            while (true)
+            {
+                Console.WriteLine("Выберите номер статуса: ");
+                for (var i = 0; i < statusesForChange.Count; i++)
+                {
+                    Console.WriteLine("{0} :{1}", i + 1, statusesForChange[i]);
+                }
+
+                int stateIndex = GetNumber();
+                if (IsCorrectChoice<State>(stateIndex, statusesForChange))
+                {
+                    return statusesForChange[stateIndex - 1];
+                }
+                else
+                {
+                    Console.WriteLine("Такого номера статуса нет");
+                }
+            }
+        }
+
+        private void ChangeTaskStatus()
+        {
+            if (IsHaveTask)
+            {
+                Task task = GetTask();
+                State state = GetStatusForChange(task);
+                switch (state.ToString())
+                {
+                    case "в работе":
+                        task._status.InProgress();
+                        break;
+                    case "сделано":
+                        task._status.Done();
+                        break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Задач нет!!!");
+            }
+
+            MoveOn();
+        }
+
+        private int GetMenuVariants()
+        {
             List<string> variants = new List<string>()
             {
                 "Создать новую задчу",
                 "Отобразить все задачи",
                 "Отобразить задачу",
                 "Удалить задачу",
-                // "Изменить статус задачи"
+                "Изменить статус задачи"
             };
 
-            for (var i = 0; i < variants.Count; i++)
+            while (true)
             {
-                Console.WriteLine("{0}: {1}", i + 1, variants[i]);
+                Console.WriteLine("Выберите действие: ");
+                for (var i = 0; i < variants.Count; i++)
+                {
+                    Console.WriteLine("{0}: {1}", i + 1, variants[i]);
+                }
+
+                var userChoice = GetNumber();
+                if (IsCorrectChoice<string>(userChoice, variants))
+                {
+                    return userChoice;
+                }
+                else
+                {
+                    Console.WriteLine("Такого действия нет в списке меню!");
+                    Console.WriteLine();
+                }
             }
         }
 
@@ -229,8 +319,7 @@ namespace Tasks
         {
             while (true)
             {
-                ShowMenuVariants();
-                var choice = GetNumber();
+                var choice = GetMenuVariants();
                 switch (choice)
                 {
                     case 1:
@@ -240,10 +329,13 @@ namespace Tasks
                         ShowAllTasks();
                         break;
                     case 3:
-                        ShowATask();
+                        ShowTask();
                         break;
                     case 4:
                         RemoveTask();
+                        break;
+                    case 5:
+                        ChangeTaskStatus();
                         break;
                 }
             }

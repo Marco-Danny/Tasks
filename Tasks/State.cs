@@ -6,6 +6,7 @@ namespace Tasks
     {
         void InProgress();
         void Done();
-        void Remove(List<Task> tasks, Task task);
+        void Remove(List<Task> tasks);
+        string ToString();
     }
 }
