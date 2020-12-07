@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Tasks
 {
+    [DataContract]
     public class StateDone : State
     {
-        private readonly string Name = "сделано";
+        public string Name = "сделано";
         
         public void InProgress()
         {

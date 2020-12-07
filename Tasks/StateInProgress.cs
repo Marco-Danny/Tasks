@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Tasks
 {
+    [DataContract]
     public class StateInProgress : State
     {
-        private readonly string Name = "в работе";
+        public string Name = "в работе";
+        
         private readonly Task _task;
 
         public StateInProgress(Task task) => _task = task;

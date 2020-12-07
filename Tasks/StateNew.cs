@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Tasks
 {
+    [DataContract]
     public class StateNew : State
     {
-        private readonly string Name = "новая";
-        private readonly Task _task;
+        [DataMember]
+        public string Name = "новая";
+        
+        public readonly Task _task;
 
         public StateNew(Task task) => _task = task;
 

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Json;
 
 namespace Tasks
 {
@@ -10,16 +12,16 @@ namespace Tasks
         private State _state;
 
         private List<Task> _tasks = new List<Task>();
-        private bool IsHaveTask => _tasks.Count > 0;
-        private bool IsCorrectChoice<T>(int input, ICollection data) => input > 0 && input <= data.Count;
+        private bool IsCorrectUserChoice<T>(int input, ICollection data) => input > 0 && input <= data.Count;
 
-        // private readonly List<Task> _tasks = new List<Task>()
+        // private List<Task> _tasks = new List<Task>()
         // {
         //     new Task("Купить хлеб", DateTime.Now, "низкий"),
         //     new Task("Купить молоко", DateTime.Now, "низкий"),
         //     new Task("Погулять с собакой", DateTime.Now, "низкий"),
         //     new Task("Заказать ресторан", DateTime.Now, "высокий")
         // };
+        private bool IsHaveTask => _tasks.Count > 0;
 
         private void MoveOn()
         {
@@ -170,15 +172,13 @@ namespace Tasks
             }
         }
 
-        private void ShowTask()
+        private void ShowSpecificTask()
         {
             if (IsHaveTask)
             {
-                Console.WriteLine("Выберите задачу");
-                int taskIndex = GetNumber();
-                if (IsCorrectChoice<Task>(taskIndex, _tasks))
+                Task task = GetTask();
+                if (task != null)
                 {
-                    Task task = GetTask();
                     Console.WriteLine("Задача:\t\t\t {0}", task.Description);
                     Console.WriteLine("Приоритет:\t\t {0}", task.Priority);
                     Console.WriteLine("Статус:\t\t\t {0}", task._status);
@@ -202,7 +202,7 @@ namespace Tasks
                 Console.WriteLine("Выберите задачу:");
                 ShowTasks();
                 var task_index = GetNumber();
-                if (IsCorrectChoice<Task>(task_index, _tasks))
+                if (IsCorrectUserChoice<Task>(task_index, _tasks))
                 {
                     return _tasks[task_index - 1];
                 }
@@ -248,7 +248,7 @@ namespace Tasks
                 }
 
                 int stateIndex = GetNumber();
-                if (IsCorrectChoice<State>(stateIndex, statusesForChange))
+                if (IsCorrectUserChoice<State>(stateIndex, statusesForChange))
                 {
                     return statusesForChange[stateIndex - 1];
                 }
@@ -263,15 +263,15 @@ namespace Tasks
         {
             if (IsHaveTask)
             {
-                Task task = GetTask();
-                State state = GetStatusForChange(task);
+                var task = GetTask();
+                var state = GetStatusForChange(task);
                 switch (state.ToString())
                 {
                     case "в работе":
-                        task._status.InProgress();
+                        task.InProgress();
                         break;
                     case "сделано":
-                        task._status.Done();
+                        task.Done();
                         break;
                 }
             }
@@ -283,6 +283,40 @@ namespace Tasks
             MoveOn();
         }
 
+        private void GetTasksFromJsonFile()
+        {
+            const string directory = @"C:\Users\admin\C# projects\Tasks\Tasks";
+            const string fileName = "Tasks.json";
+
+            var dataLoader = new DataLoader(directory, fileName);
+            _tasks = dataLoader.DeserealizeToList();
+            if (_tasks == null)
+            {
+                Console.WriteLine("Задач нет!!!");
+            }
+
+            MoveOn();
+        }
+
+        private void LoadTasksInJsonFile()
+        {
+            const string directory = @"C:\Users\admin\C# projects\Tasks\Tasks";
+            const string fileName = "Tasks.json";
+            var dataLoader = new DataLoader(directory, fileName);
+            dataLoader.SerealizeToList(_tasks);
+            DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<Task>));
+            using var file = new FileStream(dataLoader._path, FileMode.OpenOrCreate);
+            var newTasks = jsonFormatter.ReadObject(file) as List<Task>;
+            if (newTasks != null)
+            {
+                Console.WriteLine("Данные были выгружены");
+            }
+            else
+            {
+                Console.WriteLine("Что то пошло не так");
+            }
+        }
+
         private int GetMenuVariants()
         {
             List<string> variants = new List<string>()
@@ -291,9 +325,10 @@ namespace Tasks
                 "Отобразить все задачи",
                 "Отобразить задачу",
                 "Удалить задачу",
-                "Изменить статус задачи"
+                "Изменить статус задачи",
+                "Загрузить данные из файла",
+                "Выгрузить данные в json файл"
             };
-
             while (true)
             {
                 Console.WriteLine("Выберите действие: ");
@@ -303,7 +338,7 @@ namespace Tasks
                 }
 
                 var userChoice = GetNumber();
-                if (IsCorrectChoice<string>(userChoice, variants))
+                if (IsCorrectUserChoice<string>(userChoice, variants))
                 {
                     return userChoice;
                 }
@@ -329,13 +364,19 @@ namespace Tasks
                         ShowAllTasks();
                         break;
                     case 3:
-                        ShowTask();
+                        ShowSpecificTask();
                         break;
                     case 4:
                         RemoveTask();
                         break;
                     case 5:
                         ChangeTaskStatus();
+                        break;
+                    case 6:
+                        GetTasksFromJsonFile();
+                        break;
+                    case 7:
+                        LoadTasksInJsonFile();
                         break;
                 }
             }

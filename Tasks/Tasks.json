@@ -1,0 +1,38 @@
+[
+  {
+    "CompletionDate": "\/Date(1607316120828+0600)\/",
+    "Description": "Купить хлеб",
+    "Priority": "низкий",
+    "_status": {
+      "__type": "StateNew:#Tasks",
+      "Name": "новая"
+    }
+  },
+  {
+    "CompletionDate": "\/Date(1607316120830+0600)\/",
+    "Description": "Купить молоко",
+    "Priority": "низкий",
+    "_status": {
+      "__type": "StateNew:#Tasks",
+      "Name": "новая"
+    }
+  },
+  {
+    "CompletionDate": "\/Date(1607316120830+0600)\/",
+    "Description": "Погулять с собакой",
+    "Priority": "низкий",
+    "_status": {
+      "__type": "StateNew:#Tasks",
+      "Name": "новая"
+    }
+  },
+  {
+    "CompletionDate": "\/Date(1607316120830+0600)\/",
+    "Description": "Заказать ресторан",
+    "Priority": "высокий",
+    "_status": {
+      "__type": "StateNew:#Tasks",
+      "Name": "новая"
+    }
+  }
+]
