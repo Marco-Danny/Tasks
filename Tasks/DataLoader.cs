@@ -4,87 +4,66 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Tasks
 {
     public class DataLoader
     {
-        private readonly string _directory;
-        private readonly string _fileName;
-        public string _path;
-        private DataContractJsonSerializer _jsonFormatter = new DataContractJsonSerializer(typeof(List<Task>));
-        public List<Task> _tasks;
+        const string directory = @"C:\Users\admin\C# projects\Tasks\Tasks";
+        const string fileName = "mytasks.json";
 
-        public DataLoader(string path)
+        public static void Save(List<Task> tasks)
         {
-            _path = path;
+            string json = JsonConvert.SerializeObject(tasks);
+            SaveFile(json);
         }
 
-        public DataLoader(string directory, string fileName)
-        {
-            _directory = directory;
-            _fileName = fileName;
-            _path = $"{directory}/{fileName}";
-        }
-
-        public List<Task> ReadDataToList(string path)
+        public static List<Task> Load()
         {
             try
             {
-                var content = File.ReadAllText(path);
-                // if (string.IsNullOrEmpty(content))
-                if (content.Length <= 1)
+                string content = File.ReadAllText($"{directory}/{fileName}");
+                if (string.IsNullOrEmpty(content))
                 {
-                    throw new ApplicationException($"файл {_fileName} пустой");
+                    throw new ApplicationException($"файл {fileName} пустой");
                 }
+                var tasks = JsonConvert.DeserializeObject<List<Task>>(content);
+                // foreach (Task task in tasks)
+                // {
+                //     task.SetState();
+                // }
 
-                var tasks = JsonSerializer.Deserialize<List<Task>>(content);
                 return tasks;
             }
             catch (DirectoryNotFoundException)
             {
-                Console.WriteLine($"Отсутствует директория {_fileName}");
-                // return new List<Task>();
+                Console.WriteLine($"Отсутствует директория {directory}");
+                return new List<Task>();
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine($"Отсутствует файл {_fileName}");
-                // return new List<Task>();
+                Console.WriteLine($"Отсутствует файл {fileName}");
+                return new List<Task>();
             }
             catch (ApplicationException ex)
             {
-                // Console.WriteLine(ex.Message);
-                // return new List<Task>();
+                Console.WriteLine(ex.Message);
+                return new List<Task>();
             }
-            catch (JsonException)
-            {
-                Console.WriteLine("Не та структура файла");
-            }
-
-            throw new InvalidOperationException();
         }
 
-        public void SerealizeToList(List<Task> tasks)
+        private static void SaveFile(string content)
         {
-            using var file = new FileStream(_path, FileMode.OpenOrCreate);
-            _jsonFormatter.WriteObject(file, tasks);
-        }
-
-        public List<Task> DeserealizeToList()
-        {
-            using var file = new FileStream(_path, FileMode.OpenOrCreate);
-            var newTasks = _jsonFormatter.ReadObject(file) as List<Task>;
-            if (newTasks != null)
+            try
             {
-                foreach (var task in newTasks)
-                {
-                    Console.WriteLine(task.ToString());
-                }
-
-                return newTasks;
+                File.WriteAllText($"{directory}/{fileName}", content);
             }
-
-            return null;
+            catch (DirectoryNotFoundException)
+            {
+                Directory.CreateDirectory(directory);
+                SaveFile(content);
+            }
         }
     }
 }

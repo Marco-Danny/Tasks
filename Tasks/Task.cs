@@ -90,5 +90,21 @@ namespace Tasks
         {
             return Description;
         }
+
+        public void SetState()
+        {
+            if (_status.ToString() == "новая")
+            {
+                _status = new StateNew(this);
+            }
+            else if(_status.ToString() == "в работе")
+            {
+                _status = new StateInProgress(this);
+            }
+            else
+            {
+                _status = new StateDone();
+            }
+        }
     }
 }

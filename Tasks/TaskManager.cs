@@ -11,9 +11,9 @@ namespace Tasks
     {
         private State _state;
 
-        private List<Task> _tasks = new List<Task>();
         private bool IsCorrectUserChoice<T>(int input, ICollection data) => input > 0 && input <= data.Count;
 
+        private List<Task> _tasks = new List<Task>();
         // private List<Task> _tasks = new List<Task>()
         // {
         //     new Task("Купить хлеб", DateTime.Now, "низкий"),
@@ -285,36 +285,15 @@ namespace Tasks
 
         private void GetTasksFromJsonFile()
         {
-            const string directory = @"C:\Users\admin\C# projects\Tasks\Tasks";
-            const string fileName = "Tasks.json";
-
-            var dataLoader = new DataLoader(directory, fileName);
-            _tasks = dataLoader.DeserealizeToList();
-            if (_tasks == null)
-            {
-                Console.WriteLine("Задач нет!!!");
-            }
+            _tasks = DataLoader.Load();
 
             MoveOn();
         }
 
         private void LoadTasksInJsonFile()
         {
-            const string directory = @"C:\Users\admin\C# projects\Tasks\Tasks";
-            const string fileName = "Tasks.json";
-            var dataLoader = new DataLoader(directory, fileName);
-            dataLoader.SerealizeToList(_tasks);
-            DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<Task>));
-            using var file = new FileStream(dataLoader._path, FileMode.OpenOrCreate);
-            var newTasks = jsonFormatter.ReadObject(file) as List<Task>;
-            if (newTasks != null)
-            {
-                Console.WriteLine("Данные были выгружены");
-            }
-            else
-            {
-                Console.WriteLine("Что то пошло не так");
-            }
+            DataLoader.Save(_tasks);
+            MoveOn();
         }
 
         private int GetMenuVariants()

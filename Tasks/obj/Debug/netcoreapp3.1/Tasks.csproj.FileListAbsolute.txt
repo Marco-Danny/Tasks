@@ -11,3 +11,5 @@ C:\Users\admin\C# projects\Tasks\Tasks\obj\Debug\netcoreapp3.1\Tasks.csproj.Core
 C:\Users\admin\C# projects\Tasks\Tasks\obj\Debug\netcoreapp3.1\Tasks.dll
 C:\Users\admin\C# projects\Tasks\Tasks\obj\Debug\netcoreapp3.1\Tasks.pdb
 C:\Users\admin\C# projects\Tasks\Tasks\obj\Debug\netcoreapp3.1\Tasks.genruntimeconfig.cache
+C:\Users\admin\C# projects\Tasks\Tasks\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\admin\C# projects\Tasks\Tasks\obj\Debug\netcoreapp3.1\Tasks.csproj.CopyComplete
