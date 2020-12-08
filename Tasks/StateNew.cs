@@ -8,8 +8,7 @@ namespace Tasks
     [DataContract]
     public class StateNew : State
     {
-        [DataMember]
-        public string Name = "новая";
+        [DataMember] private string Name = "новая";
         
         public readonly Task _task;
 

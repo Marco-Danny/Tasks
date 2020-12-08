@@ -8,20 +8,15 @@ namespace Tasks
     [KnownType(typeof(StateDone))]
     [KnownType(typeof(StateNew))]
     [KnownType(typeof(StateInProgress))]
-    
     public class Task : State
     {
-        [DataMember]
-        public string Description { get; set; }
-        
-        [DataMember]
-        public DateTime CompletionDate { get; set; }
-        
-        [DataMember]
-        public string Priority { get; set; }
-        
-        [DataMember]
-        public State _status;
+        [DataMember] public string Description { get; set; }
+
+        [DataMember] public DateTime CompletionDate { get; set; }
+
+        [DataMember] public string Priority { get; set; }
+
+        [DataMember] public State _status;
 
         public Task()
         {
@@ -93,11 +88,12 @@ namespace Tasks
 
         public void SetState()
         {
+            // TODO получение поля _status.Name
             if (_status.ToString() == "новая")
             {
                 _status = new StateNew(this);
             }
-            else if(_status.ToString() == "в работе")
+            else if (_status.ToString() == "в работе")
             {
                 _status = new StateInProgress(this);
             }
